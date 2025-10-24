@@ -1,0 +1,34 @@
+### Identifiering och implementation av algoritmer
+
+**Algoritm 1 – Sök efter första lediga tid**
+Varför vi valt denna algoritm:
+- För att snabbt hitta nästa lediga slot när en kund vill boka.
+- Linjär sökning är enkel och fungerar bra när listan inte är för stor.
+- Ger bättre användarupplevelse och snabb respons.
+
+```csharp
+public DateTime? HittaFörstaLedigaTid(List<DateTime> tider, HashSet<DateTime> upptagna)
+{
+    foreach (var tid in tider)
+    {
+        if (!upptagna.Contains(tid))
+        {
+            return tid; // Första lediga tid hittad
+        }
+    }
+    return null; // Ingen ledig tid
+}
+
+
+**Algoritm 2 – Sortera bokningar**
+Varför vi valt denna algoritm:
+- För att visa bokningarna i rätt ordning för kund och admin.
+- Inbyggd sorteringsalgoritm är effektiv även vid många bokningar.
+- Gör systemet mer användarvänligt och förbättrar prestandan vid visning.
+
+public List<DateTime> SorteraBokningar(List<DateTime> bokningar)
+{
+    bokningar.Sort();  // Sorterar tider i stigande ordning
+    return bokningar;
+}
+
