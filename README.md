@@ -1,25 +1,42 @@
-# CarFactoryApi
-## Valt designmönster: Factory Pattern
-Jag har valt Factory Pattern för att skapa olika typer av bilar (elbil, hybridbil, bensinbil) i vårt bil-API. Factory Pattern är ett välkänt designmönster där en "fabrik" ansvarar för att skapa objekt baserat på viss indata, i stället för att skapa dem direkt med new.
+# SmartCar Workshop Booking System Api
+## Val av mönster: Strategy Pattern (”Strategi”)
 
-## Varför jag valt detta mönster
-1. Jag har flera biltyper som alla implementerar samma interface (ICar).
-2. Factory Pattern gör det lätt att lägga till nya biltyper utan att behöva ändra i huvudlogiken.
-3. Det förbättrar lösningen genom att:
-   
-- Koden blir renare och mer underhållbar.
+Problem i domänen: I ett verkstadsbokningssystem finns flera sätt att avgöra om en tid är bokningsbar:
+- enkel regel (är sloten ledig?),
+- kapacitet per mekaniker/lyft,
+- prioritet för VIP/företagskunder,
+- buffertar före/efter vissa servicetyper,
+- öppettider/helg-regler, osv.
 
-- Det blir enklare att testa och utöka
+Om vi hårdkodar all logik i en och samma metod blir koden svår att underhålla och ändra.
 
-- Det skapar lös koppling mellan delar i systemet.
+**Lösning:** Med Strategy kapslar vi in varianta algoritmer för ”tillgänglighetskontroll” bakom ett gemensamt gränssnitt. Då kan vi byta strategi (eller kombinera dem) utan att röra resten av systemet.
 
-## Use Case: Skapa en bil
+**Vinster:**
+- **Öppen–stängd principen (OCP):** Lägg till en ny regel/algoritm genom en ny klass, i stället för att ändra gammal kod.
+- **Testbarhet:** Varje strategi testas isolerat.
+- **Konfigurerbarhet:** Välj strategi per verkstad, kundtyp eller servicetyp via config/DI.
 
-- Namn: Skapa bil från användarinmatning
+**Kort Use Case (kopplat till Strategy)**
+- **UC-12:** Kontrollera tidslucka för servicebokning
+- **Primär aktör:** Kund (via webb/app)
+- **Mål:** Avgöra om vald bil, servicetyp, datum och tid kan bokas.
+- **Förutsättningar:** Verkstad, resurser (mekaniker/lyftar), öppettider finns definierade.
+- **Huvudflöde:**
+1. Kunden väljer servicetyp, datum och tid.
+2. Systemet hämtar aktiv tillgänglighetsstrategi för aktuell verkstad/servicetyp.
+3. Strategin körs med indata (bil, servicetyp, tid, varaktighet, resurser).
+4. Systemet visar resultat: ”Tillgänglig” eller ”Inte tillgänglig” med orsak.
 
-- Aktör: Användare eller Admin
+- **Eftervillkor:** Om tillgänglig markeras sloten som preliminärt reserverad inför bekräftelse.
 
-- Beskrivning: En användare skickar in en typ av bil (t.ex. "electric") via ett API-anrop. Systemet använder fabriken för att skapa rätt typ av bil-objekt utan att resten av applikationen behöver veta exakt hur objektet skapas.
+**Koppling till designmönster:** Steg 2–3 anropar Strategy-gränssnittet för tillgänglighetskontroll.
 
-## User Story
-Som administratör vill jag kunna skapa olika typer av bilar genom att bara skicka in biltyp som text, så att systemet automatiskt skapar rätt objekt.
+**Kort User Story (kopplat till Strategy)**
+
+Som kund vill jag att systemet ska korrekt avgöra om min valda tid går att boka (enligt verkstadens regler) så att jag slipper dubbelbokningar och kan välja en fungerande tid direkt.
+
+**Acceptanskriterier (urval):**
+1. Systemet använder rätt strategi beroende på servicetyp och verkstad.
+2. Regler för buffert/kapacitet/öppettider respekteras.
+3. Svaret ska vara deterministiskt och testbart.
