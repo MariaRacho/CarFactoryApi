@@ -40,3 +40,8 @@ Som kund vill jag att systemet ska korrekt avgöra om min valda tid går att bok
 1. Systemet använder rätt strategi beroende på servicetyp och verkstad.
 2. Regler för buffert/kapacitet/öppettider respekteras.
 3. Svaret ska vara deterministiskt och testbart.
+
+**Klassdiagram:** BookingService → använder (dependency) → IAvailabilityStrategy;
+SimpleAvailabilityStrategy, CapacityAwareAvailabilityStrategy → realiserar IAvailabilityStrategy.
+
+**Sekvens/aktivitet (UC-12):** Steget ”Hämta strategi” → ”IsSlotAvailable()” → beslut ”Tillgänglig?” → fortsätt/avbryt.
