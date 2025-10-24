@@ -1,0 +1,75 @@
+### Kodexempel - Strategy Pattern
+
+// Strategy Pattern - kontrollera bokningstillgänglighet på olika sätt
+
+// 1. Gemensamt interface
+public interface IAvailabilityStrategy
+{
+    bool IsSlotAvailable(DateTime startTime, TimeSpan duration);
+}
+
+// 2. Enkel strategi: kontrollera bara öppettider
+public class BasicAvailabilityStrategy : IAvailabilityStrategy
+{
+    public bool IsSlotAvailable(DateTime startTime, TimeSpan duration)
+    {
+        var open = new TimeSpan(8, 0, 0);   // 08:00
+        var close = new TimeSpan(17, 0, 0); // 17:00
+
+        var start = startTime.TimeOfDay;
+        var end = startTime.Add(duration).TimeOfDay;
+
+        return start >= open && end <= close;
+    }
+}
+
+// 3. Avancerad strategi: öppettider + bufferttid
+public class BufferedAvailabilityStrategy : IAvailabilityStrategy
+{
+    private readonly TimeSpan _buffer = TimeSpan.FromMinutes(15);
+
+    public bool IsSlotAvailable(DateTime startTime, TimeSpan duration)
+    {
+        var open = new TimeSpan(8, 0, 0);
+        var close = new TimeSpan(17, 0, 0);
+
+        var start = startTime.TimeOfDay - _buffer;
+        var end = startTime.Add(duration).TimeOfDay + _buffer;
+
+        return start >= open && end <= close;
+    }
+}
+
+// 4. Context - använder strategin
+public class BookingService
+{
+    private readonly IAvailabilityStrategy _strategy;
+
+    public BookingService(IAvailabilityStrategy strategy)
+    {
+        _strategy = strategy;
+    }
+
+    public void CheckAvailability(DateTime start, TimeSpan duration)
+    {
+        bool available = _strategy.IsSlotAvailable(start, duration);
+        Console.WriteLine(available 
+            ? "✅ Tiden är tillgänglig" 
+            : "❌ Tiden är inte tillgänglig");
+    }
+}
+
+// 5. Exempel på användning
+public class Program
+{
+    public static void Main()
+    {
+        var basicService = new BookingService(new BasicAvailabilityStrategy());
+        basicService.CheckAvailability(DateTime.Today.AddHours(9), TimeSpan.FromHours(1));
+        // Output: ✅ Tiden är tillgänglig
+
+        var bufferedService = new BookingService(new BufferedAvailabilityStrategy());
+        bufferedService.CheckAvailability(DateTime.Today.AddHours(16.5), TimeSpan.FromHours(1));
+        // Output: ❌ Tiden är inte tillgänglig (buffert går över stängningstid)
+    }
+}
